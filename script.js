@@ -1,8 +1,8 @@
-const userForm = document.getElementById('userForm');
-const quantityInput = document.getElementById('quantityInput');
-const messageElement = document.getElementById('messageElement');
-const outputContainer = document.getElementById('outputContainer');
-const nameSelector = document.getElementById('nameSelector');
+const userForm = document.getElementById('userForm'); // input number
+const quantityInput = document.getElementById('quantityInput'); //number picker thing
+const messageElement = document.getElementById('messageElement'); // error
+const outputContainer = document.getElementById('outputContainer'); //table
+const nameSelector = document.getElementById('nameSelector'); // first name last name
 
 let userData = [];
 let currentIndex = null; // for modal
@@ -14,7 +14,7 @@ function showMessage(text) { // error messages
 
 function updateDisplay() { // user list table
     outputContainer.innerHTML = '';
-    const selectedNameType = nameSelector.value;
+    const selectedNameType = nameSelector.value; // first name last name
     userData.forEach((item, index) => {
         outputContainer.innerHTML += `
         <div class="row text-center user-row" data-index="${index}">
@@ -27,8 +27,8 @@ function updateDisplay() { // user list table
 
     document.querySelectorAll('.user-row').forEach(row => { // modal double click
         row.addEventListener('dblclick', () => {
-            currentIndex = row.getAttribute('data-index');
-            openModal(userData[currentIndex], true); // open modal fresh
+            currentIndex = row.getAttribute('data-index'); // kung ano nga index pra sa user
+            openModal(userData[currentIndex], true); // open modal
         });
     });
 }
