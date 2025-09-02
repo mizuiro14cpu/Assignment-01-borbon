@@ -7,7 +7,7 @@ const nameSelector = document.getElementById('nameSelector');
 let userData = [];
 let currentIndex = null; // for modal
 
-function showMessage(text) { // error msg
+function showMessage(text) { // error messages
     messageElement.textContent = text;
     messageElement.classList.toggle('d-none', !text);
 }
@@ -28,12 +28,12 @@ function updateDisplay() { // user list table
     document.querySelectorAll('.user-row').forEach(row => { // modal double click
         row.addEventListener('dblclick', () => {
             currentIndex = row.getAttribute('data-index');
-            openModal(userData[currentIndex]);
+            openModal(userData[currentIndex], true); // open modal fresh
         });
     });
 }
 
-function openModal(user) { // modal user info
+function openModal(user, show = false) { // modal user info
     document.getElementById('modalPicture').src = user.picture.large;
     document.getElementById('modalName').textContent =
     `${user.name.title} ${user.name.first} ${user.name.last}`;
@@ -45,11 +45,13 @@ function openModal(user) { // modal user info
     document.getElementById('modalDob').textContent = new Date(user.dob.date).toLocaleDateString();
     document.getElementById('modalGender').textContent = user.gender;
 
-    const modal = new bootstrap.Modal(document.getElementById('userModal'));
-    modal.show();
+    if (show) {
+        const modal = new bootstrap.Modal(document.getElementById('userModal'));
+        modal.show();
+    }
 }
 
-document.getElementById('deleteUser').addEventListener('click', () => { // delete
+document.getElementById('deleteUser').addEventListener('click', () => { // delete user
     if (currentIndex !== null) {
         userData.splice(currentIndex, 1);
         updateDisplay();
@@ -74,14 +76,14 @@ document.querySelectorAll('.edit-pill').forEach(btn => { // edit btn for each in
             currentVal = user[field];
         }
 
-        if (field === "name") { // just for name
+        if (field === "name") { // name editing
             const newVal = prompt(`Edit ${field}:`, currentVal);
             if (!newVal) return;
             const parts = newVal.split(" ");
-            user.name.title = parts[0] || user.name.title; // mr/ms
-            user.name.first = parts[1] || user.name.first; 
+            user.name.title = parts[0] || user.name.title;
+            user.name.first = parts[1] || user.name.first;
             user.name.last = parts[2] || user.name.last;
-        } else if (field === "address") { // edit address 1 by 1
+        } else if (field === "address") { // edit address, 1 by 1
             const newStreetNumber = prompt("Edit Street Number:", user.location.street.number);
             if (newStreetNumber) user.location.street.number = newStreetNumber;
 
@@ -100,28 +102,28 @@ document.querySelectorAll('.edit-pill').forEach(btn => { // edit btn for each in
             const newPostcode = prompt("Edit Postcode:", user.location.postcode);
             if (newPostcode) user.location.postcode = newPostcode;
 
-        } else if (field === "dob") { // dob w/ check
+        } else if (field === "dob") { // dob editing with check
             const newVal = prompt("Edit Date of Birth (YYYY-MM-DD):", currentVal);
             if (!newVal) return;
 
             const parsedDate = new Date(newVal);
             if (!isNaN(parsedDate.getTime())) {
-                user.dob.date = parsedDate.toISOString(); // store date
+                user.dob.date = parsedDate.toISOString(); // store valid date
             } else {
                 alert("Invalid date. Please enter in YYYY-MM-DD format.");
             }
-        } else { // others
+        } else { // other
             const newVal = prompt(`Edit ${field}:`, currentVal);
             if (!newVal) return;
             user[field] = newVal;
         }
 
         updateDisplay();
-        openModal(user);
+        openModal(user, false); // refresh modal content only, don't reopen
     });
 });
 
-async function fetchUsers() { // api stuff
+async function fetchUsers() { // fetch from API
     const count = parseInt(quantityInput.value, 10);
     if (isNaN(count) || count < 1 || count > 1000) {
         showMessage("Enter a number between 1 and 1000.");
@@ -143,15 +145,15 @@ async function fetchUsers() { // api stuff
     }
 }
 
-userForm.addEventListener('submit', function(e) { // send req
+userForm.addEventListener('submit', function(e) { // send request
     e.preventDefault();
     fetchUsers();
 });
 
-nameSelector.addEventListener('change', updateDisplay); // first or last name pick
+nameSelector.addEventListener('change', updateDisplay); // name type change
 
-// Fix: ensure modal backdrop is always cleaned up
-const userModalEl = document.getElementById('userModal'); // fix for modal when closing
+
+const userModalEl = document.getElementById('userModal'); //modal fix
 userModalEl.addEventListener('hidden.bs.modal', () => {
     document.body.classList.remove('modal-open');
     const backdrops = document.querySelectorAll('.modal-backdrop');
