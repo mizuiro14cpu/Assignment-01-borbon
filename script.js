@@ -71,7 +71,7 @@ document.querySelectorAll('.edit-pill').forEach(btn => { // edit btn for each in
         } else if (field === "address") {
             currentVal = `${user.location.street.number} ${user.location.street.name}, ${user.location.city}, ${user.location.state}, ${user.location.country}, ${user.location.postcode}`;
         } else if (field === "dob") {
-            currentVal = new Date(user.dob.date).toISOString().split("T")[0]; // YYYY-MM-DD
+            currentVal = new Date(user.dob.date).toISOString().split("T")[0]; // YYYY-MM-DD (ex"1993-07-20T09:44:18.674Z")
         } else {
             currentVal = user[field];
         }
@@ -81,8 +81,15 @@ document.querySelectorAll('.edit-pill').forEach(btn => { // edit btn for each in
             if (!newVal) return;
             const parts = newVal.split(" ");
             user.name.title = parts[0] || user.name.title;
-            user.name.first = parts[1] || user.name.first;
-            user.name.last = parts[2] || user.name.last;
+
+            if (parts.length > 2) {
+                user.name.first = parts.slice(1, -1).join(" "); // for 2 word first names
+                user.name.last = parts[parts.length - 1] || user.name.last;
+            } else {
+                user.name.first = parts[1] || user.name.first; // title + last name only
+                user.name.last = parts[1] ? "" : user.name.last; // title only
+            }
+            
         } else if (field === "address") { // edit address, 1 by 1
             const newStreetNumber = prompt("Edit Street Number:", user.location.street.number);
             if (newStreetNumber) user.location.street.number = newStreetNumber;
